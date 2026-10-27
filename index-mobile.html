@@ -3,7 +3,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><meta name="apple-mobile-web-app-title" content="Houg of Queens">
-<meta name="theme-color" content="#0f0c1a">
+<meta name="theme-color" content="#0f0c1a"><link rel="manifest" href="manifest.webmanifest"><link rel="apple-touch-icon" href="icon-192.png">
 <script>window.HOUG_MOBILE=true;</script>
 <title>Houg of Queens</title>
 <meta name="claude:viewport-fit-sides" content="cover">
@@ -5649,8 +5649,16 @@ canvas.addEventListener('pointermove',e=>{
 });
 canvas.addEventListener('wheel',e=>{e.preventDefault();camDist=clamp(camDist+e.deltaY*0.005,3,11);},{passive:false});
 canvas.addEventListener('contextmenu',e=>e.preventDefault());
+function goFullscreen(on){
+  try{const d=document.documentElement,fs=document.fullscreenElement||document.webkitFullscreenElement;
+    if(on===false||(on===undefined&&fs)){if(fs)(document.exitFullscreen||document.webkitExitFullscreen).call(document);return;}
+    if(!fs){const r=d.requestFullscreen||d.webkitRequestFullscreen;if(r){const p=r.call(d);if(p&&p.catch)p.catch(()=>{});}
+      try{if(window.HOUG_MOBILE&&screen.orientation&&screen.orientation.lock)screen.orientation.lock('landscape').catch(()=>{});}catch(e){}}
+  }catch(e){}
+}
+window.addEventListener('keydown',e=>{if(e.code==='KeyF'&&!e.repeat&&!e.ctrlKey&&!e.metaKey&&['play','pause','start'].includes(S.mode))goFullscreen();});
 $('goBtn').addEventListener('click',()=>{
-  audioInit();introPlay();$('start').hidden=true;$('intro').hidden=false;S.mode='intro';
+  goFullscreen(true);audioInit();introPlay();$('start').hidden=true;$('intro').hidden=false;S.mode='intro';
 });
 $('resumeBtn').addEventListener('click',()=>{S.mode='play';$('pause').hidden=true;});
 $('endBtn').addEventListener('click',()=>{$('endcard').hidden=true;S.mode='play';});

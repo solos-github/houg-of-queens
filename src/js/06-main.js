@@ -44,8 +44,16 @@ canvas.addEventListener('pointermove',e=>{
 });
 canvas.addEventListener('wheel',e=>{e.preventDefault();camDist=clamp(camDist+e.deltaY*0.005,3,11);},{passive:false});
 canvas.addEventListener('contextmenu',e=>e.preventDefault());
+function goFullscreen(on){
+  try{const d=document.documentElement,fs=document.fullscreenElement||document.webkitFullscreenElement;
+    if(on===false||(on===undefined&&fs)){if(fs)(document.exitFullscreen||document.webkitExitFullscreen).call(document);return;}
+    if(!fs){const r=d.requestFullscreen||d.webkitRequestFullscreen;if(r){const p=r.call(d);if(p&&p.catch)p.catch(()=>{});}
+      try{if(window.HOUG_MOBILE&&screen.orientation&&screen.orientation.lock)screen.orientation.lock('landscape').catch(()=>{});}catch(e){}}
+  }catch(e){}
+}
+window.addEventListener('keydown',e=>{if(e.code==='KeyF'&&!e.repeat&&!e.ctrlKey&&!e.metaKey&&['play','pause','start'].includes(S.mode))goFullscreen();});
 $('goBtn').addEventListener('click',()=>{
-  audioInit();introPlay();$('start').hidden=true;$('intro').hidden=false;S.mode='intro';
+  goFullscreen(true);audioInit();introPlay();$('start').hidden=true;$('intro').hidden=false;S.mode='intro';
 });
 $('resumeBtn').addEventListener('click',()=>{S.mode='play';$('pause').hidden=true;});
 $('endBtn').addEventListener('click',()=>{$('endcard').hidden=true;S.mode='play';});
