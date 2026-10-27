@@ -150,7 +150,9 @@ html,body{height:100%;overscroll-behavior:none;touch-action:manipulation;-webkit
 #c{touch-action:none}
 #stLoad,#stImp,#svFileLink,#stFileOpen{display:none!important}
 #hud>*{zoom:.72}
-#radar{width:96px!important;height:96px!important;left:max(10px,env(safe-area-inset-left,0px))!important;bottom:auto!important;top:150px}
+#radar{width:96px!important;height:96px!important;left:max(10px,env(safe-area-inset-left,0px))!important;bottom:auto!important;top:112px}
+#tl{position:absolute;left:max(12px,env(safe-area-inset-left,0px));top:max(8px,env(safe-area-inset-top,0px));display:flex;flex-direction:column;align-items:flex-start;text-align:left}
+#tl #clock{font-size:42px}#tl #day{font-size:20px;margin-top:0}#tl #money{font-size:30px}
 #goals{display:none}
 #talk{top:calc(60px + env(safe-area-inset-top,0px))!important;max-width:min(560px,calc(100vw - 300px))!important;font-size:.9em}
 #mid{padding-inline:210px!important;bottom:8px!important}
@@ -5556,6 +5558,10 @@ function outfitVisual(){
    '<div id="tcTv"><button type="button" data-k="KeyS">◀</button><button type="button" data-k="KeyW">▶</button><button type="button" data-k="Space">OK</button></div>'+
    '<button type="button" id="tcBack" data-k="Escape">✕ Zurück</button>'+
    '<div id="tcRot"><div>📱↻<br>Bitte das Gerät ins Querformat drehen</div></div>';
+  /* Uhr, Tag und Kontostand ganz nach links oben */
+  try{const hud=document.getElementById('hud'),tl=document.createElement('div');tl.id='tl';
+    for(const id of ['clock','day','money']){const el=document.getElementById(id);if(el)tl.appendChild(el);}
+    hud.insertBefore(tl,hud.firstChild);}catch(e){console.warn('tl',e);}
   st.appendChild(root);
   for(const s of ['#tcZone','#tcBtns','#tcTop','#tcTv','#tcBack'])root.querySelector(s).style.display='none';
   const $q=s=>root.querySelector(s);

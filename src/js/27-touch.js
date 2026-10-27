@@ -18,6 +18,10 @@
    '<div id="tcTv"><button type="button" data-k="KeyS">◀</button><button type="button" data-k="KeyW">▶</button><button type="button" data-k="Space">OK</button></div>'+
    '<button type="button" id="tcBack" data-k="Escape">✕ Zurück</button>'+
    '<div id="tcRot"><div>📱↻<br>Bitte das Gerät ins Querformat drehen</div></div>';
+  /* Uhr, Tag und Kontostand ganz nach links oben */
+  try{const hud=document.getElementById('hud'),tl=document.createElement('div');tl.id='tl';
+    for(const id of ['clock','day','money']){const el=document.getElementById(id);if(el)tl.appendChild(el);}
+    hud.insertBefore(tl,hud.firstChild);}catch(e){console.warn('tl',e);}
   st.appendChild(root);
   for(const s of ['#tcZone','#tcBtns','#tcTop','#tcTv','#tcBack'])root.querySelector(s).style.display='none';
   const $q=s=>root.querySelector(s);
