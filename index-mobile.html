@@ -5550,7 +5550,7 @@ function outfitVisual(){
    '</div>'+
    '<div id="tcTop">'+
      '<button type="button" data-k="KeyQ">📋</button><button type="button" data-k="KeyI">🎒</button>'+
-     '<button type="button" data-k="KeyR">📻</button><button type="button" id="tcZin">＋</button><button type="button" id="tcZout">－</button>'+
+     '<button type="button" id="tcRadio">📻</button><button type="button" id="tcZin">＋</button><button type="button" id="tcZout">－</button>'+
      '<button type="button" id="tcFs">⛶</button><button type="button" data-k="KeyP">⏸</button>'+
    '</div>'+
    '<div id="tcTv"><button type="button" data-k="KeyS">◀</button><button type="button" data-k="KeyW">▶</button><button type="button" data-k="Space">OK</button></div>'+
@@ -5566,6 +5566,7 @@ function outfitVisual(){
     const b=e.target.closest('button');if(!b)return;
     e.preventDefault();
     if(b.id==='tcSprint'){sprint=!sprint;b.classList.toggle('on',sprint);return;}
+    if(b.id==='tcRadio'){try{if(TRK.mounted)radioNext();else toggleMusic();}catch(_){}return;}
     if(b.id==='tcZin'){camDist=clamp(camDist-1.2,3,11);return;}
     if(b.id==='tcZout'){camDist=clamp(camDist+1.2,3,11);return;}
     if(b.id==='tcFs'){try{const d=document.documentElement;if(document.fullscreenElement)document.exitFullscreen();else{(d.requestFullscreen||d.webkitRequestFullscreen).call(d);try{screen.orientation.lock('landscape').catch(()=>{});}catch(_){}}}catch(_){}return;}
