@@ -400,7 +400,7 @@ function hougOutfitBuild(model){
     const Ctor=ia.constructor;
     OV.skin={g,full:g.index,part:new THREE.BufferAttribute(new Ctor(out),1)};
    }}catch(e){console.warn('outfit body',e);}
-  OV.groups=grp;OV.ready=true;OV.cur=null;outfitVisual();
+  OV.groups=grp;OV.ready=true;OV.cur=undefined;outfitVisual();
 }
 function outfitVisual(){
   if(!OV.ready)return;
