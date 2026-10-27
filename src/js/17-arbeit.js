@@ -174,10 +174,10 @@ function engineStart(){
   const beginLoop=()=>{if(TRK.mounted)ENG.loopOn=true;};
   try{
     if(!ENG.a&&!ENG.dead){
-      const a=new Audio(ENG.drive[0]);a.loop=true;a.volume=0.4;a.preload='auto';a.preservesPitch=false;a.webkitPreservesPitch=false;a.mozPreservesPitch=false;ENG.a=a;
+      const a=new Audio(ENG.drive[0]);a.loop=true;a.volume=0.4*AUDK;a.preload='auto';a.preservesPitch=false;a.webkitPreservesPitch=false;a.mozPreservesPitch=false;ENG.a=a;
       a.addEventListener('error',()=>{if(ENG.i+1<ENG.drive.length){ENG.i++;a.src=ENG.drive[ENG.i];a.load();}else ENG.dead=true;});
     }
-    let si=0;const s=new Audio(ENG.start[0]);s.volume=0.9;ENG.s=s;
+    let si=0;const s=new Audio(ENG.start[0]);s.volume=0.9*AUDK;ENG.s=s;
     let failed=false;
     s.addEventListener('ended',beginLoop);
     s.addEventListener('error',()=>{
@@ -193,7 +193,7 @@ setInterval(()=>{
   if(!a||ENG.dead||!ENG.loopOn)return;
   if(a.paused)a.play().catch(()=>{});
   const sp=Math.min(1,Math.abs(TRK.v)/12);
-  a.volume=0.3+0.55*sp;a.playbackRate=0.85+0.5*sp;
+  a.volume=(0.3+0.55*sp)*AUDK;a.playbackRate=0.85+0.5*sp;
 },250);
 function truckUpdate(dt){
   let ix=0,iz=0;

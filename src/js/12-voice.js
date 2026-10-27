@@ -3,6 +3,9 @@
 /* Sprachaufnahmen: Lege MP3-Dateien mit genau diesen Namen in den Ordner  audio/voice/  neben index.html.
    Fehlt eine Datei, spricht stattdessen die Sprachausgabe (TTS) bzw. ein Platzhalterklang. */
 const VOICE_DIR='audio/voice/';
+/* Lautstärke aller MP3-Dateien (Sprache, Effekte, Radio, Motor) relativ zum Rest; im Pausemenü einstellbar */
+let AUDK=0.5;try{const v=parseFloat(localStorage.getItem('houg_vol'));if(v>=0&&v<=1.5)AUDK=v;}catch(e){}
+(function(){const s=document.getElementById('volSl');if(!s)return;s.value=AUDK;const l=document.getElementById('volVal');const up=()=>{AUDK=parseFloat(s.value);if(l)l.textContent=Math.round(AUDK*100)+' %';try{localStorage.setItem('houg_vol',String(AUDK));}catch(e){}};s.addEventListener('input',up);if(l)l.textContent=Math.round(AUDK*100)+' %';})();
 const VOICE_LINES={
   connie_ciao:{who:'connie',text:'Ciao, Schatz! Bis um drei!'},
   connie_back:{who:'connie',text:'Ich bin wieder da!'},
@@ -24,7 +27,7 @@ function clipOnly(key){
   if(voiceMuted||clipState[key]==='missing')return null;
   let a=null;
   try{
-    a=new Audio(VOICE_DIR+key+'.mp3');a.volume=0.9;a.preload='auto';
+    a=new Audio(VOICE_DIR+key+'.mp3');a.volume=0.9*AUDK;a.preload='auto';
     a.addEventListener('error',()=>{clipState[key]='missing';clipDebug(key,a,'error');},{once:true});
     const pr=a.play();if(pr&&pr.catch)pr.catch(e=>{if(!e||e.name!=='NotAllowedError'){clipState[key]='missing';clipDebug(key,a,e&&e.name);}});
   }catch(e){clipState[key]='missing';clipDebug(key,a,String(e));return null;}
@@ -49,7 +52,7 @@ function voiceTTS(key,who,text){
     const vs=ss.getVoices(),de=vs.find(v=>/^de/i.test(v.lang));
     if(vs.length&&!de){voiceTones(key);return;}
     const u=new SpeechSynthesisUtterance(text),p=VOICES[who];
-    u.lang='de-DE';if(de)u.voice=de;u.pitch=p.pitch;u.rate=p.rate;u.volume=1;
+    u.lang='de-DE';if(de)u.voice=de;u.pitch=p.pitch;u.rate=p.rate;u.volume=Math.min(1,AUDK*1.4);
     ss.speak(u);
   }catch(e){voiceTones(key);}
 }
@@ -62,7 +65,7 @@ function voiceSay(key,who,text,subtitle=true){
   let done=false,a0=null;const url=VOICE_CLIPS[key]||(VOICE_DIR+key+'.mp3');
   const fail=(why)=>{if(done)return;done=true;clipState[key]='missing';clipDebug(key,a0,why);fallback();};
   try{
-    const a=new Audio(url);a0=a;a.volume=0.9;a.preload='auto';
+    const a=new Audio(url);a0=a;a.volume=0.9*AUDK;a.preload='auto';
     a.addEventListener('error',()=>fail('error'),{once:true});
     const pr=a.play();
     if(pr&&pr.then)pr.then(()=>{clipState[key]='ok';done=true;}).catch(e=>{if(e&&e.name==='NotAllowedError'){done=true;return;}fail(e&&e.name);});
@@ -124,7 +127,7 @@ function startMusic(){
 function musicLevel(){
   if(!musicGain)return;
   const still=(S.mode==='tv'||!!S.scene),quiet=(S.mode==='dish');      // am Fernseher: Musik aus
-  if(RADIO.a&&RADIO.on)try{RADIO.a.volume=still?0:(quiet?0.2:0.6);}catch(e){}
+  if(RADIO.a&&RADIO.on)try{RADIO.a.volume=still?0:(quiet?0.2:0.6)*AUDK;}catch(e){}
   const target=(musicOn&&!RADIO.on&&!still)?(quiet?0.18:0.45):0;
   musicGain.gain.setTargetAtTime(target,AC.currentTime,0.25);
 }
@@ -141,7 +144,7 @@ function radioFileOn(){
   if(RADIO.dead)return false;
   try{
     if(!RADIO.a){
-      RADIO.i=0;RADIO.a=new Audio(RADIO_SRC[0]);RADIO.a.loop=true;RADIO.a.volume=0.6;RADIO.a.preload='auto';
+      RADIO.i=0;RADIO.a=new Audio(RADIO_SRC[0]);RADIO.a.loop=true;RADIO.a.volume=0.6*AUDK;RADIO.a.preload='auto';
       RADIO.a.addEventListener('error',()=>{
         if(RADIO.i+1<RADIO_SRC.length){RADIO.i++;RADIO.a.src=RADIO_SRC[RADIO.i];RADIO.a.load();if(RADIO.on){const pr=RADIO.a.play();if(pr&&pr.catch)pr.catch(()=>{});}return;}
         RADIO.dead=true;if(RADIO.on){radioFileOff();musicOn=false;banner('RADIO','intro.mp3 nicht gefunden (audio/intro.mp3)','#ffb36b');}
@@ -167,7 +170,7 @@ const INTRO={a:null,tried:false,stopped:false};
 function introPlay(){
   if(INTRO.stopped||INTRO.tried&&INTRO.a&&!INTRO.a.paused)return;
   try{
-    if(!INTRO.a){INTRO.a=new Audio('audio/intro.mp3');INTRO.a.volume=0.9;INTRO.a.preload='auto';INTRO.a.addEventListener('error',()=>{INTRO.dead=true;try{console.warn('intro.mp3 nicht ladbar',INTRO.a.error&&INTRO.a.error.code);}catch(e){}},{once:true});}
+    if(!INTRO.a){INTRO.a=new Audio('audio/intro.mp3');INTRO.a.volume=0.9*AUDK;INTRO.a.preload='auto';INTRO.a.addEventListener('error',()=>{INTRO.dead=true;try{console.warn('intro.mp3 nicht ladbar',INTRO.a.error&&INTRO.a.error.code);}catch(e){}},{once:true});}
     if(INTRO.dead)return;
     const pr=INTRO.a.play();INTRO.tried=true;
     if(pr&&pr.catch)pr.catch(()=>{});     // Autoplay gesperrt: beim ersten Tastendruck/Klick erneut versuchen
@@ -189,7 +192,7 @@ function sfxPlay(name){
     if(i>=dirs.length)return;
     try{
       const prev=SFX_AUDIO[name];if(prev){try{prev.pause();}catch(e){}}
-      const a=new Audio(dirs[i]+name+'.mp3');a.volume=0.9;SFX_AUDIO[name]=a;
+      const a=new Audio(dirs[i]+name+'.mp3');a.volume=0.9*AUDK;SFX_AUDIO[name]=a;
       let moved=false;const next=()=>{if(moved)return;moved=true;tryDir(i+1);};
       a.addEventListener('error',next,{once:true});
       const pr=a.play();if(pr&&pr.catch)pr.catch(e=>{if(!e||e.name!=='NotAllowedError')next();});
@@ -235,7 +238,7 @@ function vline(key,who,text,ms,subName){
   let done=false,a0=null;const url=VOICE_CLIPS[key]||(VOICE_DIR+key+'.mp3');
   const fail=why=>{if(done)return;done=true;clipState[key]='missing';fallback();};
   try{
-    const a=new Audio(url);a0=a;a.volume=0.9;a.preload='auto';
+    const a=new Audio(url);a0=a;a.volume=0.9*AUDK;a.preload='auto';
     a.addEventListener('error',()=>fail('error'),{once:true});
     const pr=a.play();
     if(pr&&pr.then)pr.then(()=>{clipState[key]='ok';done=true;}).catch(e=>{if(e&&e.name==='NotAllowedError'){done=true;return;}fail(e&&e.name);});
